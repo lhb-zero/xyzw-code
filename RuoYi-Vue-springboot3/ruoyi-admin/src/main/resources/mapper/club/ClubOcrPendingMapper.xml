@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.club.mapper.ClubOcrPendingMapper">
+    
+    <resultMap type="ClubOcrPending" id="ClubOcrPendingResult">
+        <result property="id"    column="id"    />
+        <result property="ocrResultId"    column="ocr_result_id"    />
+        <result property="memberId"    column="member_id"    />
+        <result property="memberName"    column="member_name"    />
+        <result property="kills"    column="kills"    />
+        <result property="deaths"    column="deaths"    />
+        <result property="kdRatio"    column="kd_ratio"    />
+        <result property="digging"    column="digging"    />
+        <result property="revives"    column="revives"    />
+        <result property="recordDate"    column="record_date"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="delFlag"    column="del_flag"    />
+    </resultMap>
+
+    <sql id="selectClubOcrPendingVo">
+        select id, ocr_result_id, member_id, member_name, kills, deaths, kd_ratio, digging, revives, record_date, remark, create_by, create_time, update_by, update_time, del_flag from club_ocr_pending
+    </sql>
+
+    <select id="selectClubOcrPendingList" parameterType="ClubOcrPending" resultMap="ClubOcrPendingResult">
+        <include refid="selectClubOcrPendingVo"/>
+        <where>  
+            <if test="ocrResultId != null "> and ocr_result_id = #{ocrResultId}</if>
+            <if test="memberId != null "> and member_id = #{memberId}</if>
+            <if test="memberName != null  and memberName != ''"> and member_name like concat('%', #{memberName}, '%')</if>
+            <if test="kills != null "> and kills = #{kills}</if>
+            <if test="deaths != null "> and deaths = #{deaths}</if>
+            <if test="kdRatio != null "> and kd_ratio = #{kdRatio}</if>
+            <if test="digging != null "> and digging = #{digging}</if>
+            <if test="revives != null "> and revives = #{revives}</if>
+            <if test="recordDate != null "> and record_date = #{recordDate}</if>
+            <if test="delFlag != null  and delFlag != ''"> and del_flag = #{delFlag}</if>
+        </where>
+        order by create_time desc
+    </select>
+    
+    <select id="selectClubOcrPendingById" parameterType="Long" resultMap="ClubOcrPendingResult">
+        <include refid="selectClubOcrPendingVo"/>
+        where id = #{id}
+    </select>
+    
+    <select id="selectClubOcrPendingByOcrResultId" parameterType="Long" resultMap="ClubOcrPendingResult">
+        <include refid="selectClubOcrPendingVo"/>
+        where ocr_result_id = #{ocrResultId}
+    </select>
+        
+    <insert id="insertClubOcrPending" parameterType="ClubOcrPending" useGeneratedKeys="true" keyProperty="id">
+        insert into club_ocr_pending
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="ocrResultId != null">ocr_result_id,</if>
+            <if test="memberId != null">member_id,</if>
+            <if test="memberName != null and memberName != ''">member_name,</if>
+            <if test="kills != null">kills,</if>
+            <if test="deaths != null">deaths,</if>
+            <if test="kdRatio != null">kd_ratio,</if>
+            <if test="digging != null">digging,</if>
+            <if test="revives != null">revives,</if>
+            <if test="recordDate != null">record_date,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="delFlag != null">del_flag,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="ocrResultId != null">#{ocrResultId},</if>
+            <if test="memberId != null">#{memberId},</if>
+            <if test="memberName != null and memberName != ''">#{memberName},</if>
+            <if test="kills != null">#{kills},</if>
+            <if test="deaths != null">#{deaths},</if>
+            <if test="kdRatio != null">#{kdRatio},</if>
+            <if test="digging != null">#{digging},</if>
+            <if test="revives != null">#{revives},</if>
+            <if test="recordDate != null">#{recordDate},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+         </trim>
+    </insert>
+
+    <insert id="batchInsertClubOcrPending" parameterType="java.util.List">
+        insert into club_ocr_pending (ocr_result_id, member_id, member_name, kills, deaths, kd_ratio, digging, revives, record_date, create_by, create_time, del_flag)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.ocrResultId}, #{item.memberId}, #{item.memberName}, #{item.kills}, #{item.deaths}, #{item.kdRatio}, #{item.digging}, #{item.revives}, #{item.recordDate}, #{item.createBy}, #{item.createTime}, #{item.delFlag})
+        </foreach>
+    </insert>
+
+    <update id="updateClubOcrPending" parameterType="ClubOcrPending">
+        update club_ocr_pending
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="ocrResultId != null">ocr_result_id = #{ocrResultId},</if>
+            <if test="memberId != null">member_id = #{memberId},</if>
+            <if test="memberName != null and memberName != ''">member_name = #{memberName},</if>
+            <if test="kills != null">kills = #{kills},</if>
+            <if test="deaths != null">deaths = #{deaths},</if>
+            <if test="kdRatio != null">kd_ratio = #{kdRatio},</if>
+            <if test="digging != null">digging = #{digging},</if>
+            <if test="revives != null">revives = #{revives},</if>
+            <if test="recordDate != null">record_date = #{recordDate},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteClubOcrPendingById" parameterType="Long">
+        delete from club_ocr_pending where id = #{id}
+    </delete>
+
+    <delete id="deleteClubOcrPendingByIds" parameterType="String">
+        delete from club_ocr_pending where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+    <delete id="clearAllPendingRecords">
+        delete from club_ocr_pending
+    </delete>
+</mapper>

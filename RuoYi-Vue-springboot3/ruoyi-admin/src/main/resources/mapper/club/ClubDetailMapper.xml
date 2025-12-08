@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.club.mapper.ClubDetailMapper">
+    
+    <resultMap type="ClubDetail" id="ClubDetailResult">
+        <result property="id"    column="id"    />
+        <result property="teamGroup"    column="team_group"    />
+        <result property="memberCount"    column="member_count"    />
+        <result property="totalPower"    column="total_power"    />
+        <result property="avgPower"    column="avg_power"    />
+        <result property="totalRedRefine"    column="total_red_refine"    />
+        <result property="avgRedRefine"    column="avg_red_refine"    />
+        <result property="powerStatTime"    column="power_stat_time"    />
+        <result property="createdAt"    column="created_at"    />
+        <result property="updatedAt"    column="updated_at"    />
+    </resultMap>
+
+    <sql id="selectClubDetailVo">
+        select id, team_group, member_count, total_power, avg_power, total_red_refine, avg_red_refine, power_stat_time, created_at, updated_at from club_detail
+    </sql>
+
+    <select id="selectClubDetailList" parameterType="ClubDetail" resultMap="ClubDetailResult">
+        <include refid="selectClubDetailVo"/>
+        <where>  
+            <if test="teamGroup != null  and teamGroup != ''"> and team_group = #{teamGroup}</if>
+            <if test="memberCount != null "> and member_count = #{memberCount}</if>
+            <if test="totalPower != null "> and total_power = #{totalPower}</if>
+            <if test="avgPower != null "> and avg_power = #{avgPower}</if>
+            <if test="totalRedRefine != null "> and total_red_refine = #{totalRedRefine}</if>
+            <if test="avgRedRefine != null "> and avg_red_refine = #{avgRedRefine}</if>
+        </where>
+    </select>
+    
+    <select id="selectClubDetailById" parameterType="Long" resultMap="ClubDetailResult">
+        <include refid="selectClubDetailVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertClubDetail" parameterType="ClubDetail" useGeneratedKeys="true" keyProperty="id">
+        insert into club_detail
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="teamGroup != null">team_group,</if>
+            <if test="memberCount != null">member_count,</if>
+            <if test="totalPower != null">total_power,</if>
+            <if test="avgPower != null">avg_power,</if>
+            <if test="totalRedRefine != null">total_red_refine,</if>
+            <if test="avgRedRefine != null">avg_red_refine,</if>
+            <if test="powerStatTime != null">power_stat_time,</if>
+            <if test="createdAt != null">created_at,</if>
+            <if test="updatedAt != null">updated_at,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="teamGroup != null">#{teamGroup},</if>
+            <if test="memberCount != null">#{memberCount},</if>
+            <if test="totalPower != null">#{totalPower},</if>
+            <if test="avgPower != null">#{avgPower},</if>
+            <if test="totalRedRefine != null">#{totalRedRefine},</if>
+            <if test="avgRedRefine != null">#{avgRedRefine},</if>
+            <if test="powerStatTime != null">#{powerStatTime},</if>
+            <if test="createdAt != null">#{createdAt},</if>
+            <if test="updatedAt != null">#{updatedAt},</if>
+         </trim>
+    </insert>
+
+    <update id="updateClubDetail" parameterType="ClubDetail">
+        update club_detail
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="teamGroup != null">team_group = #{teamGroup},</if>
+            <if test="memberCount != null">member_count = #{memberCount},</if>
+            <if test="totalPower != null">total_power = #{totalPower},</if>
+            <if test="avgPower != null">avg_power = #{avgPower},</if>
+            <if test="totalRedRefine != null">total_red_refine = #{totalRedRefine},</if>
+            <if test="avgRedRefine != null">avg_red_refine = #{avgRedRefine},</if>
+            <if test="powerStatTime != null">power_stat_time = #{powerStatTime},</if>
+            <if test="createdAt != null">created_at = #{createdAt},</if>
+            <if test="updatedAt != null">updated_at = #{updatedAt},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteClubDetailById" parameterType="Long">
+        delete from club_detail where id = #{id}
+    </delete>
+
+    <delete id="deleteClubDetailByIds" parameterType="String">
+        delete from club_detail where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!-- ClubMember 相关的映射 -->
+    <resultMap type="ClubMember" id="ClubMemberResult">
+        <result property="id"    column="id"    />
+        <result property="gameId"    column="game_id"    />
+        <result property="power"    column="power"    />
+        <result property="server"    column="server"    />
+        <result property="teamGroup"    column="team_group"    />
+        <result property="joinDate"    column="join_date"    />
+        <result property="fourSacred"    column="four_sacred"    />
+        <result property="redRefine"    column="red_refine"    />
+        <result property="mainLineup"    column="main_lineup"    />
+        <result property="customField1"    column="custom_field_1"    />
+        <result property="customField2"    column="custom_field_2"    />
+        <result property="createdAt"    column="created_at"    />
+        <result property="updatedAt"    column="updated_at"    />
+    </resultMap>
+
+    <sql id="selectClubMemberVo">
+        select id, game_id, power, server, team_group, join_date, four_sacred, red_refine, main_lineup, custom_field_1, custom_field_2, created_at, updated_at from club_member
+    </sql>
+
+    <!-- 查询指定团别的成员列表 -->
+    <select id="selectMembersByTeamGroup" parameterType="String" resultMap="ClubMemberResult">
+        <include refid="selectClubMemberVo"/>
+        where team_group = #{teamGroup}
+    </select>
+</mapper>

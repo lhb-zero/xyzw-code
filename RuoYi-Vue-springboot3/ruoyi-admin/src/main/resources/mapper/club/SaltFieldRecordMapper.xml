@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.club.mapper.SaltFieldRecordMapper">
+    
+    <resultMap type="SaltFieldRecord" id="SaltFieldRecordResult">
+        <result property="id"    column="id"    />
+        <result property="memberId"    column="member_id"    />
+        <result property="recordDate"    column="record_date"    />
+        <result property="kills"    column="kills"    />
+        <result property="deaths"    column="deaths"    />
+        <result property="digs"    column="digs"    />
+        <result property="revives"    column="revives"    />
+        <result property="kdRatio"    column="kd_ratio"    />
+        <result property="ocrRecordId"    column="ocr_record_id"    />
+        <result property="imageUrl"    column="image_url"    />
+        <result property="dataSource"    column="data_source"    />
+        <result property="createdAt"    column="created_at"    />
+    </resultMap>
+
+    <sql id="selectSaltFieldRecordVo">
+        select id, member_id, record_date, kills, deaths, digs, revives, kd_ratio, ocr_record_id, image_url, data_source, created_at from salt_field_record
+    </sql>
+
+    <select id="selectSaltFieldRecordList" parameterType="SaltFieldRecord" resultMap="SaltFieldRecordResult">
+        <include refid="selectSaltFieldRecordVo"/>
+        <where>  
+            <if test="memberId != null "> and member_id = #{memberId}</if>
+            <if test="recordDate != null "> and record_date = #{recordDate}</if>
+            <if test="kills != null "> and kills = #{kills}</if>
+            <if test="deaths != null "> and deaths = #{deaths}</if>
+            <if test="digs != null "> and digs = #{digs}</if>
+            <if test="revives != null "> and revives = #{revives}</if>
+            <if test="kdRatio != null "> and kd_ratio = #{kdRatio}</if>
+            <if test="ocrRecordId != null "> and ocr_record_id = #{ocrRecordId}</if>
+            <if test="dataSource != null  and dataSource != ''"> and data_source = #{dataSource}</if>
+        </where>
+        order by created_at desc
+    </select>
+    
+    <select id="selectSaltFieldRecordById" parameterType="Long" resultMap="SaltFieldRecordResult">
+        <include refid="selectSaltFieldRecordVo"/>
+        where id = #{id}
+    </select>
+        
+    <select id="selectSaltFieldRecordByMemberId" parameterType="Long" resultMap="SaltFieldRecordResult">
+        <include refid="selectSaltFieldRecordVo"/>
+        where member_id = #{memberId}
+        order by record_date desc
+    </select>
+
+    <insert id="insertSaltFieldRecord" parameterType="SaltFieldRecord" useGeneratedKeys="true" keyProperty="id">
+        insert into salt_field_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="memberId != null">member_id,</if>
+            <if test="recordDate != null">record_date,</if>
+            <if test="kills != null">kills,</if>
+            <if test="deaths != null">deaths,</if>
+            <if test="digs != null">digs,</if>
+            <if test="revives != null">revives,</if>
+            <if test="kdRatio != null">kd_ratio,</if>
+            <if test="ocrRecordId != null">ocr_record_id,</if>
+            <if test="imageUrl != null">image_url,</if>
+            <if test="dataSource != null">data_source,</if>
+            <if test="createdAt != null">created_at,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="memberId != null">#{memberId},</if>
+            <if test="recordDate != null">#{recordDate},</if>
+            <if test="kills != null">#{kills},</if>
+            <if test="deaths != null">#{deaths},</if>
+            <if test="digs != null">#{digs},</if>
+            <if test="revives != null">#{revives},</if>
+            <if test="kdRatio != null">#{kdRatio},</if>
+            <if test="ocrRecordId != null">#{ocrRecordId},</if>
+            <if test="imageUrl != null">#{imageUrl},</if>
+            <if test="dataSource != null">#{dataSource},</if>
+            <if test="createdAt != null">#{createdAt},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSaltFieldRecord" parameterType="SaltFieldRecord">
+        update salt_field_record
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="memberId != null">member_id = #{memberId},</if>
+            <if test="recordDate != null">record_date = #{recordDate},</if>
+            <if test="kills != null">kills = #{kills},</if>
+            <if test="deaths != null">deaths = #{deaths},</if>
+            <if test="digs != null">digs = #{digs},</if>
+            <if test="revives != null">revives = #{revives},</if>
+            <if test="kdRatio != null">kd_ratio = #{kdRatio},</if>
+            <if test="ocrRecordId != null">ocr_record_id = #{ocrRecordId},</if>
+            <if test="imageUrl != null">image_url = #{imageUrl},</if>
+            <if test="dataSource != null">data_source = #{dataSource},</if>
+            <if test="createdAt != null">created_at = #{createdAt},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSaltFieldRecordById" parameterType="Long">
+        delete from salt_field_record where id = #{id}
+    </delete>
+
+    <delete id="deleteSaltFieldRecordByIds" parameterType="String">
+        delete from salt_field_record where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

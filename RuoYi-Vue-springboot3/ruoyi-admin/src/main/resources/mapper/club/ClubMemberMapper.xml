@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.club.mapper.ClubMemberMapper">
+    
+    <resultMap type="ClubMember" id="ClubMemberResult">
+        <result property="id"    column="id"    />
+        <result property="gameId"    column="game_id"    />
+        <result property="power"    column="power"    />
+        <result property="server"    column="server"    />
+        <result property="teamGroup"    column="team_group"    />
+        <result property="joinDate"    column="join_date"    />
+        <result property="fourSacred"    column="four_sacred"    />
+        <result property="redRefine"    column="red_refine"    />
+        <result property="mainLineup"    column="main_lineup"    />
+        <result property="customField1"    column="custom_field_1"    />
+        <result property="customField2"    column="custom_field_2"    />
+        <result property="createdAt"    column="created_at"    />
+        <result property="updatedAt"    column="updated_at"    />
+    </resultMap>
+
+    <resultMap id="ClubMemberSaltFieldRecordResult" type="ClubMember" extends="ClubMemberResult">
+        <collection property="saltFieldRecordList" ofType="SaltFieldRecord" column="id" select="selectSaltFieldRecordList" />
+    </resultMap>
+
+    <resultMap type="SaltFieldRecord" id="SaltFieldRecordResult">
+        <result property="id"    column="id"    />
+        <result property="memberId"    column="member_id"    />
+        <result property="recordDate"    column="record_date"    />
+        <result property="kills"    column="kills"    />
+        <result property="deaths"    column="deaths"    />
+        <result property="digs"    column="digs"    />
+        <result property="revives"    column="revives"    />
+        <result property="kdRatio"    column="kd_ratio"    />
+        <result property="ocrRecordId"    column="ocr_record_id"    />
+        <result property="imageUrl"    column="image_url"    />
+        <result property="dataSource"    column="data_source"    />
+        <result property="createdAt"    column="created_at"    />
+    </resultMap>
+
+    <sql id="selectClubMemberVo">
+        select id, game_id, power, server, team_group, join_date, four_sacred, red_refine, main_lineup, custom_field_1, custom_field_2, created_at, updated_at from club_member
+    </sql>
+
+    <select id="selectClubMemberList" parameterType="ClubMember" resultMap="ClubMemberResult">
+        <include refid="selectClubMemberVo"/>
+        <where>  
+            <if test="gameId != null  and gameId != ''"> and game_id like concat('%', #{gameId}, '%')</if>
+            <if test="server != null  and server != ''"> and server = #{server}</if>
+            <if test="teamGroup != null  and teamGroup != ''"> and team_group = #{teamGroup}</if>
+            <if test="joinDate != null "> and join_date = #{joinDate}</if>
+            <if test="fourSacred != null "> and four_sacred = #{fourSacred}</if>
+            <if test="redRefineOp == 'gte' and redRefineMin != null">
+                and red_refine &gt;= #{redRefineMin}
+            </if>
+            <if test="redRefineOp == 'lt' and redRefineMax != null">
+                and red_refine &lt;= #{redRefineMax}
+            </if>
+            <if test="redRefineMin != null and redRefineOp == null and redRefine != null">
+                and red_refine = #{redRefine}
+            </if>
+            <if test="mainLineup != null  and mainLineup != ''"> and main_lineup like concat('%', #{mainLineup}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectClubMemberById" parameterType="Long" resultMap="ClubMemberSaltFieldRecordResult">
+        select id, game_id, power, server, team_group, join_date, four_sacred, red_refine, main_lineup, custom_field_1, custom_field_2, created_at, updated_at
+        from club_member
+        where id = #{id}
+    </select>
+
+    <select id="selectSaltFieldRecordList" resultMap="SaltFieldRecordResult">
+        select id, member_id, record_date, kills, deaths, digs, revives, kd_ratio, ocr_record_id, image_url, data_source, created_at
+        from salt_field_record
+        where member_id = #{member_id}
+    </select>
+
+    <insert id="insertClubMember" parameterType="ClubMember" useGeneratedKeys="true" keyProperty="id">
+        insert into club_member
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="gameId != null and gameId != ''">game_id,</if>
+            <if test="power != null">power,</if>
+            <if test="server != null">server,</if>
+            <if test="teamGroup != null">team_group,</if>
+            <if test="joinDate != null">join_date,</if>
+            <if test="fourSacred != null">four_sacred,</if>
+            <if test="redRefine != null">red_refine,</if>
+            <if test="mainLineup != null">main_lineup,</if>
+            <if test="customField1 != null">custom_field_1,</if>
+            <if test="customField2 != null">custom_field_2,</if>
+            <if test="createdAt != null">created_at,</if>
+            <if test="updatedAt != null">updated_at,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="gameId != null and gameId != ''">#{gameId},</if>
+            <if test="power != null">#{power},</if>
+            <if test="server != null">#{server},</if>
+            <if test="teamGroup != null">#{teamGroup},</if>
+            <if test="joinDate != null">#{joinDate},</if>
+            <if test="fourSacred != null">#{fourSacred},</if>
+            <if test="redRefine != null">#{redRefine},</if>
+            <if test="mainLineup != null">#{mainLineup},</if>
+            <if test="customField1 != null">#{customField1},</if>
+            <if test="customField2 != null">#{customField2},</if>
+            <if test="createdAt != null">#{createdAt},</if>
+            <if test="updatedAt != null">#{updatedAt},</if>
+         </trim>
+    </insert>
+
+    <update id="updateClubMember" parameterType="ClubMember">
+        update club_member
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="gameId != null and gameId != ''">game_id = #{gameId},</if>
+            <if test="power != null">power = #{power},</if>
+            <if test="server != null">server = #{server},</if>
+            <if test="teamGroup != null">team_group = #{teamGroup},</if>
+            <if test="joinDate != null">join_date = #{joinDate},</if>
+            <if test="fourSacred != null">four_sacred = #{fourSacred},</if>
+            <if test="redRefine != null">red_refine = #{redRefine},</if>
+            <if test="mainLineup != null">main_lineup = #{mainLineup},</if>
+            <if test="customField1 != null">custom_field_1 = #{customField1},</if>
+            <if test="customField2 != null">custom_field_2 = #{customField2},</if>
+            <if test="createdAt != null">created_at = #{createdAt},</if>
+            <if test="updatedAt != null">updated_at = #{updatedAt},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteClubMemberById" parameterType="Long">
+        delete from club_member where id = #{id}
+    </delete>
+
+    <delete id="deleteClubMemberByIds" parameterType="String">
+        delete from club_member where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+    <delete id="deleteSaltFieldRecordByMemberIds" parameterType="String">
+        delete from salt_field_record where member_id in 
+        <foreach item="memberId" collection="array" open="(" separator="," close=")">
+            #{memberId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteSaltFieldRecordByMemberId" parameterType="Long">
+        delete from salt_field_record where member_id = #{memberId}
+    </delete>
+
+    <insert id="batchSaltFieldRecord">
+        insert into salt_field_record( id, member_id, record_date, kills, deaths, digs, revives, kd_ratio, ocr_record_id, image_url, data_source, created_at) values
+        <foreach item="item" index="index" collection="list" separator=",">
+            ( #{item.id}, #{item.memberId}, #{item.recordDate}, #{item.kills}, #{item.deaths}, #{item.digs}, #{item.revives}, #{item.kdRatio}, #{item.ocrRecordId}, #{item.imageUrl}, #{item.dataSource}, #{item.createdAt})
+        </foreach>
+    </insert>
+</mapper>

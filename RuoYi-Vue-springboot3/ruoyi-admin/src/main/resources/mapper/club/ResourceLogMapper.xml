@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.club.mapper.ResourceLogMapper">
+
+    <resultMap type="ResourceLog" id="ResourceLogResult">
+        <result property="id" column="id" />
+        <result property="logTitle" column="log_title" />
+        <result property="logType" column="log_type" />
+        <result property="memberId" column="member_id" />
+        <result property="recordDate" column="record_date" />
+        <result property="resourceData" column="resource_data" />
+        <result property="notes" column="notes" />
+        <result property="createdAt" column="created_at" />
+        <result property="updatedAt" column="updated_at" />
+        <association property="memberInfo" javaType="ClubMember">
+            <result property="id" column="member_id" />
+            <result property="gameId" column="game_id" />
+            <result property="server" column="server" />
+        </association>
+    </resultMap>
+
+    <sql id="selectResourceLogVo">
+        select rl.id, rl.log_title, rl.log_type, rl.member_id, rl.record_date,
+               rl.resource_data, rl.notes, rl.created_at, rl.updated_at,
+               cm.game_id, cm.server
+        from resource_log rl
+                 left join club_member cm on rl.member_id = cm.id
+    </sql>
+
+    <select id="selectResourceLogList" parameterType="ResourceLog" resultMap="ResourceLogResult">
+        <include refid="selectResourceLogVo"/>
+        <where>
+            <if test="logTitle != null  and logTitle != ''"> and rl.log_title like concat('%', #{logTitle}, '%')</if>
+            <if test="logType != null  and logType != ''"> and rl.log_type = #{logType}</if>
+            <if test="memberId != null"> and rl.member_id = #{memberId}</if>
+            <if test="recordDate != null"> and rl.record_date = #{recordDate}</if>
+        </where>
+        order by rl.record_date desc, rl.created_at desc
+    </select>
+
+    <select id="selectResourceLogById" parameterType="Long" resultMap="ResourceLogResult">
+        <include refid="selectResourceLogVo"/>
+        where rl.id = #{id}
+    </select>
+
+    <select id="selectResourceLogByMemberId" parameterType="Long" resultMap="ResourceLogResult">
+        <include refid="selectResourceLogVo"/>
+        where rl.member_id = #{memberId}
+        order by rl.record_date desc, rl.created_at desc
+    </select>
+
+    <select id="selectResourceLogForComparison" resultMap="ResourceLogResult">
+        <include refid="selectResourceLogVo"/>
+        where rl.id in
+        <foreach collection="array" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        order by rl.record_date desc
+    </select>
+
+    <select id="selectResourceLogByMembersAndDateRange" resultMap="ResourceLogResult">
+        <include refid="selectResourceLogVo"/>
+        where rl.member_id in
+        <foreach item="memberId" collection="memberIds" open="(" separator="," close=")">
+            #{memberId}
+        </foreach>
+        <if test="startDate != null">
+            and rl.record_date >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            and rl.record_date &lt;= #{endDate}
+        </if>
+        <if test="resourceType != null and resourceType != ''">
+            and rl.resource_data like concat('%', #{resourceType}, '%')
+        </if>
+        order by rl.record_date asc
+    </select>
+
+    <insert id="insertResourceLog" parameterType="ResourceLog" useGeneratedKeys="true" keyProperty="id">
+        insert into resource_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="logTitle != null and logTitle != ''">log_title,</if>
+            <if test="logType != null and logType != ''">log_type,</if>
+            <if test="memberId != null">member_id,</if>
+            <if test="recordDate != null">record_date,</if>
+            <if test="resourceData != null and resourceData != ''">resource_data,</if>
+            <if test="notes != null">notes,</if>
+            <if test="createdAt != null">created_at,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="logTitle != null and logTitle != ''">#{logTitle},</if>
+            <if test="logType != null and logType != ''">#{logType},</if>
+            <if test="memberId != null">#{memberId},</if>
+            <if test="recordDate != null">#{recordDate},</if>
+            <if test="resourceData != null and resourceData != ''">#{resourceData},</if>
+            <if test="notes != null">#{notes},</if>
+            <if test="createdAt != null">#{createdAt},</if>
+        </trim>
+    </insert>
+
+    <update id="updateResourceLog" parameterType="ResourceLog">
+        update resource_log
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="logTitle != null and logTitle != ''">log_title = #{logTitle},</if>
+            <if test="logType != null and logType != ''">log_type = #{logType},</if>
+            <if test="memberId != null">member_id = #{memberId},</if>
+            <if test="recordDate != null">record_date = #{recordDate},</if>
+            <if test="resourceData != null and resourceData != ''">resource_data = #{resourceData},</if>
+            <if test="notes != null">notes = #{notes},</if>
+            <if test="updatedAt != null">updated_at = #{updatedAt},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteResourceLogById" parameterType="Long">
+        delete from resource_log where id = #{id}
+    </delete>
+
+    <delete id="deleteResourceLogByIds" parameterType="String">
+        delete from resource_log where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

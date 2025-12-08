@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.club.mapper.UploadImageMapper">
+    
+    <resultMap type="UploadImage" id="UploadImageResult">
+        <result property="id"    column="id"    />
+        <result property="accessPath"    column="access_Path"    />
+        <result property="originalName"    column="original_name"    />
+        <result property="storagePath"    column="storage_path"    />
+        <result property="fileSize"    column="file_size"    />
+        <result property="fileType"    column="file_type"    />
+        <result property="imageWidth"    column="image_width"    />
+        <result property="imageHeight"    column="image_height"    />
+        <result property="uploadType"    column="upload_type"    />
+        <result property="uploadStatus"    column="upload_status"    />
+        <result property="md5Hash"    column="md5_hash"    />
+        <result property="createdAt"    column="created_at"    />
+    </resultMap>
+
+    <sql id="selectUploadImageVo">
+        select id, access_Path, original_name, storage_path, file_size, file_type, image_width, image_height, upload_type, upload_status, md5_hash, created_at from upload_image
+    </sql>
+
+    <select id="selectUploadImageList" parameterType="UploadImage" resultMap="UploadImageResult">
+        <include refid="selectUploadImageVo"/>
+        <where>  
+            <if test="originalName != null  and originalName != ''"> and original_name like concat('%', #{originalName}, '%')</if>
+            <if test="uploadType != null  and uploadType != ''"> and upload_type = #{uploadType}</if>
+            <if test="uploadStatus != null  and uploadStatus != ''"> and upload_status = #{uploadStatus}</if>
+            <if test="md5Hash != null  and md5Hash != ''"> and md5_hash = #{md5Hash}</if>
+        </where>
+        order by created_at desc
+    </select>
+    
+    <select id="selectUploadImageById" parameterType="Long" resultMap="UploadImageResult">
+        <include refid="selectUploadImageVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertUploadImage" parameterType="UploadImage" useGeneratedKeys="true" keyProperty="id">
+        insert into upload_image
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="accessPath != null and accessPath != ''">access_Path,</if>
+            <if test="originalName != null and originalName != ''">original_name,</if>
+            <if test="storagePath != null and storagePath != ''">storage_path,</if>
+            <if test="fileSize != null">file_size,</if>
+            <if test="fileType != null and fileType != ''">file_type,</if>
+            <if test="imageWidth != null">image_width,</if>
+            <if test="imageHeight != null">image_height,</if>
+            <if test="uploadType != null and uploadType != ''">upload_type,</if>
+            <if test="uploadStatus != null and uploadStatus != ''">upload_status,</if>
+            <if test="md5Hash != null">md5_hash,</if>
+            <if test="createdAt != null">created_at,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="accessPath != null and accessPath != ''">#{accessPath},</if>
+            <if test="originalName != null and originalName != ''">#{originalName},</if>
+            <if test="storagePath != null and storagePath != ''">#{storagePath},</if>
+            <if test="fileSize != null">#{fileSize},</if>
+            <if test="fileType != null and fileType != ''">#{fileType},</if>
+            <if test="imageWidth != null">#{imageWidth},</if>
+            <if test="imageHeight != null">#{imageHeight},</if>
+            <if test="uploadType != null and uploadType != ''">#{uploadType},</if>
+            <if test="uploadStatus != null and uploadStatus != ''">#{uploadStatus},</if>
+            <if test="md5Hash != null">#{md5Hash},</if>
+            <if test="createdAt != null">#{createdAt},</if>
+         </trim>
+    </insert>
+
+    <update id="updateUploadImage" parameterType="UploadImage">
+        update upload_image
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="accessPath != null and accessPath != ''">access_Path = #{accessPath},</if>
+            <if test="originalName != null and originalName != ''">original_name = #{originalName},</if>
+            <if test="storagePath != null">storage_path = #{storagePath},</if>
+            <if test="fileSize != null">file_size = #{fileSize},</if>
+            <if test="fileType != null">file_type = #{fileType},</if>
+            <if test="imageWidth != null">image_width = #{imageWidth},</if>
+            <if test="imageHeight != null">image_height = #{imageHeight},</if>
+            <if test="uploadType != null">upload_type = #{uploadType},</if>
+            <if test="uploadStatus != null">upload_status = #{uploadStatus},</if>
+            <if test="md5Hash != null">md5_hash = #{md5Hash},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteUploadImageById" parameterType="Long">
+        delete from upload_image where id = #{id}
+    </delete>
+
+    <delete id="deleteUploadImageByIds" parameterType="String">
+        delete from upload_image where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

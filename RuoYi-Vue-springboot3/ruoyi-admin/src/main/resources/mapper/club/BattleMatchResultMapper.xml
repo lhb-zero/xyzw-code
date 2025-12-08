@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.club.mapper.BattleMatchResultMapper">
+    
+    <resultMap type="BattleMatchResult" id="BattleMatchResultResult">
+        <result property="id"    column="id"    />
+        <result property="ocrResultId"    column="ocr_result_id"    />
+        <result property="nickname"    column="nickname"    />
+        <result property="memberId"    column="member_id"    />
+        <result property="kills"    column="kills"    />
+        <result property="deaths"    column="deaths"    />
+        <result property="digs"    column="digs"    />
+        <result property="revives"    column="revives"    />
+        <result property="kdRatio"    column="kd_ratio"    />
+        <result property="battleDate"    column="battle_date"    />
+        <result property="confirmed"    column="confirmed"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <association property="matchedMember" javaType="ClubMember" resultMap="ClubMemberResult" />
+    </resultMap>
+    
+    <resultMap type="ClubMember" id="ClubMemberResult">
+        <result property="id" column="member_id" />
+        <result property="gameId" column="game_id" />
+        <result property="server" column="server" />
+    </resultMap>
+
+    <sql id="selectBattleMatchResultVo">
+        select bmr.id, bmr.ocr_result_id, bmr.nickname, bmr.member_id, 
+               bmr.kills, bmr.deaths, bmr.digs, bmr.revives, bmr.kd_ratio, 
+               bmr.battle_date, bmr.confirmed, bmr.remark, bmr.create_by, bmr.create_time, 
+               bmr.update_by, bmr.update_time, cm.game_id, cm.server
+        from club_battle_match_result bmr
+        left join club_ocr_result cor on bmr.ocr_result_id = cor.id
+        left join club_member cm on bmr.member_id = cm.id
+    </sql>
+
+    <select id="selectBattleMatchResultList" parameterType="BattleMatchResult" resultMap="BattleMatchResultResult">
+        <include refid="selectBattleMatchResultVo"/>
+        <where>  
+            <if test="nickname != null  and nickname != ''"> and bmr.nickname like concat('%', #{nickname}, '%')</if>
+            <if test="memberId != null"> and bmr.member_id = #{memberId}</if>
+            <if test="confirmed != null"> and bmr.confirmed = #{confirmed}</if>
+        </where>
+        order by bmr.create_time desc
+    </select>
+    
+    <select id="selectBattleMatchResultById" parameterType="Long" resultMap="BattleMatchResultResult">
+        <include refid="selectBattleMatchResultVo"/>
+        where bmr.id = #{id}
+    </select>
+        
+    <insert id="insertBattleMatchResult" parameterType="BattleMatchResult" useGeneratedKeys="true" keyProperty="id">
+        insert into club_battle_match_result
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="ocrResultId != null">ocr_result_id,</if>
+            <if test="nickname != null and nickname != ''">nickname,</if>
+            <if test="memberId != null">member_id,</if>
+            <if test="kills != null">kills,</if>
+            <if test="deaths != null">deaths,</if>
+            <if test="digs != null">digs,</if>
+            <if test="revives != null">revives,</if>
+            <if test="kdRatio != null">kd_ratio,</if>
+            <if test="battleDate != null and battleDate != ''">battle_date,</if>
+            <if test="confirmed != null">confirmed,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="ocrResultId != null">#{ocrResultId},</if>
+            <if test="nickname != null and nickname != ''">#{nickname},</if>
+            <if test="memberId != null">#{memberId},</if>
+            <if test="kills != null">#{kills},</if>
+            <if test="deaths != null">#{deaths},</if>
+            <if test="digs != null">#{digs},</if>
+            <if test="revives != null">#{revives},</if>
+            <if test="kdRatio != null">#{kdRatio},</if>
+            <if test="battleDate != null and battleDate != ''">#{battleDate},</if>
+            <if test="confirmed != null">#{confirmed},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+         </trim>
+    </insert>
+
+    <update id="updateBattleMatchResult" parameterType="BattleMatchResult">
+        update club_battle_match_result
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="nickname != null and nickname != ''">nickname = #{nickname},</if>
+            <if test="memberId != null">member_id = #{memberId},</if>
+            <if test="kills != null">kills = #{kills},</if>
+            <if test="deaths != null">deaths = #{deaths},</if>
+            <if test="digs != null">digs = #{digs},</if>
+            <if test="revives != null">revives = #{revives},</if>
+            <if test="kdRatio != null">kd_ratio = #{kdRatio},</if>
+            <if test="battleDate != null">battle_date = #{battleDate},</if>
+            <if test="confirmed != null">confirmed = #{confirmed},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteBattleMatchResultById" parameterType="Long">
+        delete from club_battle_match_result where id = #{id}
+    </delete>
+
+    <delete id="deleteBattleMatchResultByIds" parameterType="String">
+        delete from club_battle_match_result where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
