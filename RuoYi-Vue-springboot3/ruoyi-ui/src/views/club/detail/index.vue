@@ -57,7 +57,7 @@
         <div class="stat-icon avg-icon">📊</div>
         <div class="stat-content">
           <div class="stat-value">{{ formatNumber(teamOverview.avgRedRefine || 0) }}</div>
-          <div class="stat-label">平均实力</div>
+          <div class="stat-label">平均红淬</div>
         </div>
       </div>
     </div>
@@ -129,17 +129,26 @@
         <div class="member-info">
           <div class="member-name">{{ member.gameId }}</div>
           <div class="member-stats">
-            <div class="stat-item">
-              <span class="stat-label">战力</span>
-              <span class="stat-value power-stat">{{ formatPower(member.power || 0) }}</span>
+            <div class="stat-item power-item">
+              <div class="stat-icon">⚔️</div>
+              <div class="stat-content">
+                <div class="stat-label">战力</div>
+                <div class="stat-value power-stat">{{ formatPower(member.power || 0) }}</div>
+              </div>
             </div>
-            <div class="stat-item">
-              <span class="stat-label">红</span>
-              <span class="stat-value red-stat">{{ formatNumber(member.redRefine || 0) }}</span>
+            <div class="stat-item refine-item">
+              <div class="stat-icon">🔥</div>
+              <div class="stat-content">
+                <div class="stat-label">红淬</div>
+                <div class="stat-value red-stat">{{ formatNumber(member.redRefine || 0) }}</div>
+              </div>
             </div>
-            <div class="stat-item">
-              <span class="stat-label">四圣</span>
-              <span class="stat-value sacred-stat">{{ member.fourSacred || 0 }}</span>
+            <div class="stat-item sacred-item">
+              <div class="stat-icon">⭐</div>
+              <div class="stat-content">
+                <div class="stat-label">四圣</div>
+                <div class="stat-value sacred-stat">{{ member.fourSacred || 0 }}</div>
+              </div>
             </div>
           </div>
           <div class="member-lineup">
@@ -156,7 +165,7 @@
         <el-table :data="topMembers" stripe class="preview-table">
           <el-table-column label="排名" width="80" align="center">
             <template #default="scope">
-              <span class="rank-badge" :class="getRankClass(scope.$index)">
+              <span class="rank-badge" :class="getRankClass(scope.$index)" :title="scope.$index + 1">
                 {{ scope.$index + 1 }}
               </span>
             </template>
@@ -289,16 +298,17 @@ let powerChartInstance = null
 let redRefineChartInstance = null
 let fourSacredChartInstance = null
 
-// 格式化数字
+// 格式化数字，添加千位分隔符
 function formatNumber(num) {
   if (num === null || num === undefined) return '0'
-  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  return parseFloat(num).toLocaleString()
 }
 
-// 格式化战力值，添加"亿"单位
+// 格式化战力值，统一使用"亿"单位
 function formatPower(power) {
-  if (power === null || power === undefined) return '0'
-  return power.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + '亿'
+  if (power === null || power === undefined) return '0亿'
+  const num = parseFloat(power)
+  return num.toLocaleString() + '亿'
 }
 
 // 获取阵容标签
@@ -306,13 +316,13 @@ function getLineupLabel(value) {
   if (!value) return '-'
   const lineupMap = {
     '0': '吴国',
-    '1': '合力赵云',
-    '2': '三蜀赵云',
-    '3': '典韦',
-    '4': '姜维',
-    '5': '关羽',
-    '6': '司马懿',
-    '7': '毒爆'
+    '1': '三蜀赵云',
+    '2': '姜维',
+    '3': '司马懿',
+    '4': '毒爆',
+    '5': '合力赵云',
+    '6': '典韦',
+    '7': '关羽'
   }
   return lineupMap[value] || value
 }
@@ -321,14 +331,14 @@ function getLineupLabel(value) {
 function getLineupTagType(value) {
   if (!value) return 'info'
   const typeMap = {
-    '0': 'danger',
-    '1': 'warning',
-    '2': 'success',
-    '3': 'info',
-    '4': 'primary',
-    '5': 'primary',
-    '6': 'danger',
-    '7': 'warning'
+    '0': 'danger',   // 吴国 - 红色
+    '1': 'warning',  // 三蜀赵云 - 橙色
+    '2': 'success',  // 姜维 - 绿色
+    '3': 'info',     // 司马懿 - 蓝色
+    '4': 'primary',  // 毒爆 - 深蓝色
+    '5': 'warning',  // 合力赵云 - 橙色
+    '6': 'danger',   // 典韦 - 红色
+    '7': 'primary'   // 关羽 - 深蓝色
   }
   return typeMap[value] || 'info'
 }
@@ -346,13 +356,13 @@ function getLineupShortName(value) {
   if (!value) return '无'
   const shortNameMap = {
     '0': '吴国',
-    '1': '赵云', 
-    '2': '蜀',
-    '3': '典韦',
-    '4': '姜维',
-    '5': '关羽',
-    '6': '司马',
-    '7': '毒爆'
+    '1': '蜀云', 
+    '2': '姜维',
+    '3': '司马',
+    '4': '毒爆',
+    '5': '合赵',
+    '6': '典韦',
+    '7': '关羽'
   }
   return shortNameMap[value] || value
 }
@@ -370,13 +380,13 @@ function getLineupColorClass(value) {
   if (!value) return 'lineup-gray'
   const colorMap = {
     '0': 'lineup-red',    // 吴国 - 红色
-    '1': 'lineup-green',   // 赵云 - 绿色
-    '2': 'lineup-green',   // 蜀 - 绿色
-    '3': 'lineup-blue',    // 典韦 - 蓝色
-    '4': 'lineup-green',   // 姜维 - 绿色
-    '5': 'lineup-green',   // 关羽 - 绿色
-    '6': 'lineup-blue',    // 司马 - 蓝色
-    '7': 'lineup-gold'     // 毒爆 - 金色
+    '1': 'lineup-green',   // 三蜀赵云 - 绿色
+    '2': 'lineup-green',   // 姜维 - 绿色
+    '3': 'lineup-blue',    // 司马懿 - 蓝色
+    '4': 'lineup-gold',    // 毒爆 - 金色
+    '5': 'lineup-orange',  // 合力赵云 - 橙色
+    '6': 'lineup-purple',  // 典韦 - 紫色
+    '7': 'lineup-blue'     // 关羽 - 蓝色
   }
   return colorMap[value] || 'lineup-gray'
 }
@@ -384,9 +394,11 @@ function getLineupColorClass(value) {
 // 根据红淬炼数量获取卡片样式类
 function getCardPowerClass(redRefine) {
   const refine = parseInt(redRefine) || 0
-  if (refine >= 50) return 'card-high'
-  if (refine >= 40) return 'card-medium'
-  return 'card-low'
+  if (refine >= 60) return 'card-legendary' // 传奇级
+  if (refine >= 50) return 'card-epic'     // 史诗级
+  if (refine >= 40) return 'card-rare'     // 稀有级
+  if (refine >= 30) return 'card-uncommon' // 少见级
+  return 'card-common'                       // 普通级
 }
 
 // 团别切换
@@ -489,42 +501,105 @@ function loadPowerDistribution() {
       const categories = data.map(item => item.teamGroup)
       const values = data.map(item => item.memberCount)
       
+      // 创建渐变色数组，战力越高颜色越深
+      const colorGradient = categories.map((category, index) => {
+        const colors = [
+          '#74b9ff', // 浅蓝
+          '#54a0ff', // 中蓝
+          '#48dbfb', // 天蓝
+          '#0abde3', // 深天蓝
+          '#006ba6', // 深蓝
+          '#3498db', // 标准蓝
+          '#2980b9', // 深标准蓝
+          '#5f9ea0', // 军蓝
+          '#4682b4'  // 钢蓝
+        ];
+        return colors[index % colors.length];
+      });
+
       const option = {
         tooltip: {
           trigger: 'axis',
           axisPointer: {
             type: 'shadow'
+          },
+          formatter: function(params) {
+            const data = params[0];
+            return `<div style="padding: 8px;">
+                      <div style="font-weight: bold; margin-bottom: 4px;">${data.name}</div>
+                      <div style="color: #666;">人数: <span style="color: #2980b9; font-weight: bold;">${data.value}</span>人</div>
+                    </div>`;
           }
         },
         grid: {
           left: '3%',
           right: '4%',
           bottom: '3%',
+          top: '10%',
           containLabel: true
         },
         xAxis: {
           type: 'category',
-          data: categories
+          data: categories,
+          axisLabel: {
+            color: '#666',
+            fontWeight: 500,
+            fontSize: 12
+          },
+          axisLine: {
+            lineStyle: {
+              color: '#e0e0e0'
+            }
+          }
         },
         yAxis: {
           type: 'value',
-          name: '人数'
+          name: '人数',
+          nameTextStyle: {
+            color: '#666',
+            fontWeight: 500
+          },
+          axisLabel: {
+            color: '#666'
+          },
+          splitLine: {
+            lineStyle: {
+              color: '#f0f0f0'
+            }
+          }
         },
         series: [
           {
             name: '战力分布',
             type: 'bar',
-            data: values,
-            itemStyle: {
-              color: '#409EFF'
-            },
+            data: values.map((value, index) => ({
+              value: value,
+              itemStyle: {
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                  { offset: 0, color: colorGradient[index] },
+                  { offset: 1, color: colorGradient[index] + '99' } // 添加透明度
+                ]),
+                borderRadius: [6, 6, 0, 0],
+                shadowColor: colorGradient[index] + '33',
+                shadowBlur: 10,
+                shadowOffsetY: 4
+              }
+            })),
             label: {
               show: true,
               position: 'top',
               formatter: '{c}',
-              fontSize: 14,
-              fontWeight: 'bold',
-              color: '#333'
+              fontSize: 13,
+              fontWeight: '600',
+              color: '#2980b9',
+              padding: [4, 0, 0, 0]
+            },
+            emphasis: {
+              itemStyle: {
+                shadowColor: colorGradient,
+                shadowBlur: 15,
+                shadowOffsetY: 6
+              }
             }
           }
         ]
@@ -1128,8 +1203,8 @@ onMounted(() => {
       }
 
       &.avg-icon {
-        background: linear-gradient(135deg, #fce7f3, #fbcfe8);
-        border-color: #f9a8d4;
+        background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+        border-color: #a5b4fc;
       }
     }
 
@@ -1255,71 +1330,160 @@ onMounted(() => {
         box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
       }
 
-      // 高实力卡片效果
-      &.card-high {
-        background: linear-gradient(145deg, #fff5f5, #fff0f0);
-        border-color: #fecaca;
-        box-shadow: 0 4px 20px rgba(251, 146, 60, 0.15);
+      // 传奇级卡片效果（60+红淬）
+      &.card-legendary {
+        background: linear-gradient(145deg, #fef7ff, #fdeeff);
+        border: 2px solid #e879f9;
+        box-shadow: 0 4px 20px rgba(236, 72, 153, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        position: relative;
+        
+        &::before {
+          content: '';
+          position: absolute;
+          top: -5px;
+          left: -5px;
+          right: -5px;
+          bottom: -5px;
+          background: linear-gradient(45deg, #ec4899, #8b5cf6, #3b82f6);
+          border-radius: 12px;
+          z-index: -1;
+          opacity: 0.7;
+        }
         
         &:hover {
-          border-color: #fb923c;
-          box-shadow: 0 8px 30px rgba(251, 146, 60, 0.25);
+          transform: translateY(-4px) scale(1.02);
+          box-shadow: 0 12px 30px rgba(236, 72, 153, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4);
         }
       }
 
-      // 中等实力卡片效果
-      &.card-medium {
+      // 史诗级卡片效果（50-59红淬）
+      &.card-epic {
+        background: linear-gradient(145deg, #fff5f5, #ffede9);
+        border: 2px solid #ff9800;
+        box-shadow: 0 4px 20px rgba(255, 152, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        
+        &:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 10px 25px rgba(255, 152, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+        }
+      }
+
+      // 稀有级卡片效果（40-49红淬）
+      &.card-rare {
         background: linear-gradient(145deg, #f0f9ff, #e0f2fe);
-        border-color: #bae6fd;
-        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.1);
+        border: 2px solid #3b82f6;
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3);
         
         &:hover {
-          border-color: #38bdf8;
-          box-shadow: 0 8px 25px rgba(59, 130, 246, 0.2);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.4);
         }
       }
 
-      // 一般实力卡片效果
-      &.card-low {
+      // 少见级卡片效果（30-39红淬）
+      &.card-uncommon {
+        background: linear-gradient(145deg, #f0fdf4, #dcfce7);
+        border: 2px solid #22c55e;
+        box-shadow: 0 4px 12px rgba(34, 197, 94, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        
+        &:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 6px 20px rgba(34, 197, 94, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+        }
+      }
+
+      // 普通级卡片效果（<30红淬）
+      &.card-common {
         background: #f8fafc;
-        border-color: #e2e8f0;
+        border: 2px solid #e2e8f0;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        
+        &:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
       }
 
       .member-rank {
         position: absolute;
         top: -8px;
         left: 16px;
+        z-index: 10;
 
         .rank-number {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          width: 28px;
-          height: 28px;
+          width: 36px;
+          height: 36px;
           border-radius: 50%;
-          font-size: 12px;
+          font-size: 14px;
           font-weight: 700;
           color: white;
+          border: 2px solid rgba(255, 255, 255, 0.9);
+          position: relative;
+          transition: all 0.3s ease;
           
+          // 前3名特殊图标
           &.rank-gold {
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
+            background: linear-gradient(145deg, #FFD700, #FFA500);
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.5), 0 0 20px rgba(255, 215, 0, 0.2);
+            
+            &::before {
+              content: '👑';
+              position: absolute;
+              top: -12px;
+              font-size: 16px;
+              filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.2));
+            }
           }
           
           &.rank-silver {
-            background: linear-gradient(135deg, #C0C0C0, #808080);
-            box-shadow: 0 2px 8px rgba(192, 192, 192, 0.4);
+            background: linear-gradient(145deg, #E8E8E8, #B8B8B8);
+            box-shadow: 0 4px 12px rgba(192, 192, 192, 0.5), 0 0 20px rgba(192, 192, 192, 0.2);
+            
+            &::before {
+              content: '🥈';
+              position: absolute;
+              top: -12px;
+              font-size: 16px;
+              filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.2));
+            }
           }
           
           &.rank-bronze {
-            background: linear-gradient(135deg, #CD7F32, #8B4513);
-            box-shadow: 0 2px 8px rgba(205, 127, 50, 0.4);
+            background: linear-gradient(145deg, #CD7F32, #8B4513);
+            box-shadow: 0 4px 12px rgba(205, 127, 50, 0.5), 0 0 20px rgba(205, 127, 50, 0.2);
+            
+            &::before {
+              content: '🥉';
+              position: absolute;
+              top: -12px;
+              font-size: 16px;
+              filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.2));
+            }
           }
           
+          // 4-10名渐变蓝色
           &.rank-normal {
-            background: linear-gradient(135deg, #64748b, #475569);
-            box-shadow: 0 2px 8px rgba(100, 116, 139, 0.3);
+            background: linear-gradient(145deg, #6366f1, #3b82f6);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4), 0 0 15px rgba(59, 130, 246, 0.15);
+            
+            // 数字为4、7时使用更亮的蓝色
+            &:nth-child(4n) {
+              background: linear-gradient(145deg, #818cf8, #6366f1);
+              box-shadow: 0 4px 12px rgba(99, 102, 241, 0.5), 0 0 15px rgba(99, 102, 241, 0.2);
+            }
+            
+            // 数字为5、10时使用更深的蓝色
+            &:nth-child(5n) {
+              background: linear-gradient(145deg, #4f46e5, #3730a3);
+              box-shadow: 0 4px 12px rgba(79, 70, 229, 0.5), 0 0 15px rgba(79, 70, 229, 0.2);
+            }
+          }
+          
+          &:hover {
+            transform: translateY(-2px) scale(1.1);
           }
         }
       }
@@ -1348,18 +1512,28 @@ onMounted(() => {
           }
           
           &.lineup-green {
-            // 赵云、蜀、姜维、关羽 - 翡翠绿
+            // 三蜀赵云、姜维 - 翡翠绿
             background: linear-gradient(145deg, #27ae60, #229954);
           }
           
           &.lineup-blue {
-            // 典韦、司马 - 深邃蓝
+            // 司马懿、关羽 - 深邃蓝
             background: linear-gradient(145deg, #3498db, #2980b9);
           }
           
           &.lineup-gold {
             // 毒爆 - 尊贵金
             background: linear-gradient(145deg, #f39c12, #d68910);
+          }
+          
+          &.lineup-orange {
+            // 合力赵云 - 活力橙
+            background: linear-gradient(145deg, #ff7f50, #ff6347);
+          }
+          
+          &.lineup-purple {
+            // 典韦 - 神秘紫
+            background: linear-gradient(145deg, #9b59b6, #8e44ad);
           }
           
           &.lineup-gray {
@@ -1382,44 +1556,69 @@ onMounted(() => {
 
         .member-stats {
           display: flex;
-          gap: 12px;
+          gap: 8px;
           margin-bottom: 8px;
 
           .stat-item {
+            flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 2px;
-            font-size: 12px;
-            min-width: 45px;
+            padding: 6px 4px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 8px;
+            border: 1px solid rgba(226, 232, 240, 0.6);
+            transition: all 0.2s ease;
+
+            &:hover {
+              background: rgba(255, 255, 255, 0.8);
+              transform: translateY(-1px);
+            }
+
+            .stat-icon {
+              font-size: 14px;
+              margin-bottom: 2px;
+            }
+
+            .stat-content {
+              width: 100%;
+              text-align: center;
+            }
 
             .stat-label {
-              font-size: 12px;
+              font-size: 10px;
               color: #64748b;
               font-weight: 500;
               line-height: 1;
+              margin-bottom: 2px;
             }
 
             .stat-value {
-              font-weight: 600;
-              color: #374151;
-              font-size: 15px;
+              font-weight: 700;
+              font-size: 14px;
               line-height: 1.2;
+            }
 
-              &.power-stat {
+            &.power-item {
+              .stat-value {
                 color: #059669;
-                font-size: 14px;
+                font-size: 13px;
               }
+            }
 
-              &.red-stat {
+            &.refine-item {
+              .stat-value {
                 color: #dc2626;
-                font-size: 16px;
-                font-weight: 700;
+                font-size: 15px;
+                font-weight: 800;
               }
+            }
 
-              &.sacred-stat {
+            &.sacred-item {
+              .stat-value {
                 color: #7c3aed;
-                font-size: 16px;
+                font-size: 15px;
+                font-weight: 700;
               }
             }
           }
@@ -1466,27 +1665,70 @@ onMounted(() => {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 24px;
-        height: 24px;
+        width: 32px;
+        height: 32px;
         border-radius: 50%;
-        font-size: 11px;
+        font-size: 12px;
         font-weight: 700;
         color: white;
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        position: relative;
+        transition: all 0.2s ease;
         
         &.rank-gold {
-          background: linear-gradient(135deg, #FFD700, #FFA500);
+          background: linear-gradient(145deg, #FFD700, #FFA500);
+          box-shadow: 0 3px 8px rgba(255, 215, 0, 0.5);
+          
+          &::after {
+            content: '👑';
+            position: absolute;
+            top: -15px;
+            font-size: 14px;
+          }
         }
         
         &.rank-silver {
-          background: linear-gradient(135deg, #C0C0C0, #808080);
+          background: linear-gradient(145deg, #E8E8E8, #B8B8B8);
+          box-shadow: 0 3px 8px rgba(192, 192, 192, 0.5);
+          
+          &::after {
+            content: '🥈';
+            position: absolute;
+            top: -15px;
+            font-size: 14px;
+          }
         }
         
         &.rank-bronze {
-          background: linear-gradient(135deg, #CD7F32, #8B4513);
+          background: linear-gradient(145deg, #CD7F32, #8B4513);
+          box-shadow: 0 3px 8px rgba(205, 127, 50, 0.5);
+          
+          &::after {
+            content: '🥉';
+            position: absolute;
+            top: -15px;
+            font-size: 14px;
+          }
         }
         
         &.rank-normal {
-          background: linear-gradient(135deg, #64748b, #475569);
+          background: linear-gradient(145deg, #6366f1, #3b82f6);
+          box-shadow: 0 3px 8px rgba(59, 130, 246, 0.4);
+          
+          // 为特定数字使用特殊颜色
+          &[title="4"], &[title="7"] {
+            background: linear-gradient(145deg, #818cf8, #6366f1);
+            box-shadow: 0 3px 8px rgba(99, 102, 241, 0.5);
+          }
+          
+          &[title="5"], &[title="10"] {
+            background: linear-gradient(145deg, #4f46e5, #3730a3);
+            box-shadow: 0 3px 8px rgba(79, 70, 229, 0.5);
+          }
+        }
+        
+        &:hover {
+          transform: scale(1.1);
         }
       }
 

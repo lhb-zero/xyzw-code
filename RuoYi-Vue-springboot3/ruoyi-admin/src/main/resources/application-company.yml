@@ -1,0 +1,32 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/xyzw?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
+    username: root
+    password: rootlhbROOT
+  data:
+    redis:
+          host: localhost   # 如果公司 redis 在别的机器，这里改成公司 IP
+          port: 6379
+          database: 0
+          password: root
+          timeout: 10s
+          lettuce:
+            pool:
+              min-idle: 0
+              max-idle: 8
+              max-active: 8
+              max-wait: -1ms
+
+# 公司环境配置
+server:
+  port: 8011   # 如果公司想用别的端口，在这里改
+
+ocr:
+  engine:
+    url: http://172.17.243.150:5111  # 你原来写的公司 OCR 地址
+
+club:
+  upload:
+    path: ./upload
+    domain: http://localhost:8011  # 如果公司用 Nginx 域名，可以换成 http://your-company-domain
+

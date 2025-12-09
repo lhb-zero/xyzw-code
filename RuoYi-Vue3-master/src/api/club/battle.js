@@ -2,6 +2,7 @@ import request from '@/utils/request'
 import axios from 'axios'
 
 // OCR服务相关API
+// const OCR_BASE_URL = process.env.VUE_APP_OCR_BASE_URL
 const OCR_BASE_URL = 'http://172.17.243.150:5111'
 // const OCR_BASE_URL = 'http://172.28.41.154:5111'
 
