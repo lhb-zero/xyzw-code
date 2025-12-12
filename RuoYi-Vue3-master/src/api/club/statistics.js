@@ -71,3 +71,4 @@ export function getComparisonData(params) {
     params
   })
 }
+

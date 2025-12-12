@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.Calendar;
+import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -276,6 +278,8 @@ public class StatisticsController extends BaseController
                     return ((Long)b.get("totalDeaths")).compareTo((Long)a.get("totalDeaths"));
                 } else if ("digs".equals(sortType)) {
                     return ((Long)b.get("totalDigs")).compareTo((Long)a.get("totalDigs"));
+                } else if ("revives".equals(sortType)) {
+                    return ((Long)b.get("totalRevives")).compareTo((Long)a.get("totalRevives"));
                 } else if ("kd".equals(sortType)) {
                     return ((BigDecimal)b.get("avgKdRatio")).compareTo((BigDecimal)a.get("avgKdRatio"));
                 }
@@ -644,6 +648,8 @@ public class StatisticsController extends BaseController
         return AjaxResult.success(dataSourceList);
     }
     
+
+    
     /**
      * 导出战绩数据
      */
@@ -717,5 +723,88 @@ public class StatisticsController extends BaseController
         
         // 导出Excel
         util.exportExcel(response, filteredRecords, "战绩数据");
+    }
+    
+    /**
+     * 获取成员详细战绩数据
+     */
+    @PreAuthorize("@ss.hasPermi('club:statistics:memberDetail')")
+    @GetMapping("/memberDetail")
+    public AjaxResult getMemberBattleDetail(
+            @RequestParam(value = "memberId", required = false) Long memberId,
+            @RequestParam(value = "teamGroup", required = false) String teamGroup,
+            @RequestParam(value = "startDate", required = false) String startDate,
+            @RequestParam(value = "endDate", required = false) String endDate)
+    {
+        try {
+            // 构建查询条件
+            SaltFieldRecord query = new SaltFieldRecord();
+            
+            // 设置成员ID
+            if (memberId != null) {
+                query.setMemberId(memberId);
+            }
+            
+            // 按团队筛选成员ID
+            List<Long> memberIds = null;
+            if (StringUtils.isNotBlank(teamGroup)) {
+                ClubMember memberQuery = new ClubMember();
+                memberQuery.setTeamGroup(teamGroup);
+                List<ClubMember> members = clubMemberService.selectClubMemberList(memberQuery);
+                memberIds = members.stream().map(ClubMember::getId).collect(Collectors.toList());
+                
+                // 如果指定了成员ID且不在团队中，则返回空结果
+                if (memberId != null && !memberIds.contains(memberId)) {
+                    return AjaxResult.success(new ArrayList<>());
+                }
+            }
+            
+            // 获取所有记录
+            List<SaltFieldRecord> records = saltFieldRecordService.selectSaltFieldRecordList(query);
+            
+            // 筛选记录
+            final List<Long> finalMemberIds = memberIds; // 创建final副本
+            final String finalStartDate = startDate; // 创建final副本
+            final String finalEndDate = endDate; // 创建final副本
+            
+            List<SaltFieldRecord> filteredRecords = records.stream()
+                .filter(record -> {
+                    // 成员筛选
+                    if (finalMemberIds != null && !finalMemberIds.isEmpty()) {
+                        if (!finalMemberIds.contains(record.getMemberId())) {
+                            return false;
+                        }
+                    }
+                    
+                    // 日期筛选
+                    if (StringUtils.isNotBlank(finalStartDate) && record.getRecordDate() != null) {
+                        Date start = DateUtils.parseDate(finalStartDate);
+                        if (record.getRecordDate().before(start)) {
+                            return false;
+                        }
+                    }
+                    
+                    if (StringUtils.isNotBlank(finalEndDate) && record.getRecordDate() != null) {
+                        Date end = DateUtils.parseDate(finalEndDate);
+                        Calendar cal = Calendar.getInstance();
+                        cal.setTime(end);
+                        cal.add(Calendar.DAY_OF_MONTH, 1); // 结束日期包含当天
+                        Date nextDay = cal.getTime();
+                        
+                        if (record.getRecordDate().after(nextDay) || record.getRecordDate().equals(nextDay)) {
+                            return false;
+                        }
+                    }
+                    
+                    return true;
+                })
+                .collect(Collectors.toList());
+            
+            return AjaxResult.success(filteredRecords);
+        } catch (Exception e) {
+            System.err.println("Error in getMemberBattleDetail: " + e.getMessage());
+            e.printStackTrace();
+            return AjaxResult.error("获取成员战绩数据失败: " + e.getMessage());
+        }
     }
 }

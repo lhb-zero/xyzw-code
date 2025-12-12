@@ -379,6 +379,37 @@ function handleClose() {
   width: 100%;
 }
 
+/* 详细数据表格卡片样式 */
+.data-table-card {
+  margin-top: 20px;
+  width: 100%;
+}
+
+/* 响应式表格设计 */
+@media (max-width: 768px) {
+  .data-table-card {
+    margin-top: 15px;
+  }
+  
+  /* 表格列在小屏幕上自动调整 */
+  .el-table :deep(.el-table__cell) {
+    padding: 6px 0;
+  }
+  
+  .el-table :deep(th) {
+    font-size: 12px;
+  }
+  
+  .el-table :deep(td) {
+    font-size: 12px;
+  }
+  
+  /* 在小屏幕上允许横向滚动 */
+  :deep(.el-table__body-wrapper) {
+    overflow-x: auto;
+  }
+}
+
 .charts-section {
   margin-bottom: 20px;
 }

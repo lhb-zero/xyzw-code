@@ -7,23 +7,27 @@
       </div>
     </template>
     <el-table :data="records" stripe>
-      <el-table-column prop="record_date" label="日期" width="120">
+      <el-table-column prop="record_date" label="日期" min-width="100">
         <template #default="scope">
           {{ formatDate(scope.row.record_date) }}
         </template>
       </el-table-column>
-      <el-table-column prop="kills" label="击杀" width="80" align="center" />
-      <el-table-column prop="deaths" label="死亡" width="80" align="center" />
-      <el-table-column prop="digs" label="刨地" width="80" align="center" />
-      <el-table-column prop="revives" label="复活" width="80" align="center" />
-      <el-table-column prop="kdRatio" label="KD" width="80" align="center">
+      <el-table-column prop="kills" label="击杀" min-width="70" align="center" />
+      <el-table-column prop="deaths" label="死亡" min-width="70" align="center" />
+      <el-table-column prop="digs" label="刨地" min-width="70" align="center" />
+      <el-table-column prop="revives" label="复活" min-width="70" align="center" />
+      <el-table-column prop="kdRatio" label="KD" min-width="70" align="center">
         <template #default="scope">
-          <span :style="{ color: scope.row.kdRatio >= 1 ? '#67C23A' : '#F56C6C', fontWeight: 'bold' }">
+          <span :class="[
+            'kd-value',
+            { 'kd-high': scope.row.kdRatio >= 1 },
+            { 'kd-low': scope.row.kdRatio < 1 }
+          ]">
             {{ scope.row.kdRatio ? scope.row.kdRatio.toFixed(2) : '-' }}
           </span>
         </template>
       </el-table-column>
-      <el-table-column prop="created_at" label="记录时间" width="160">
+      <el-table-column prop="created_at" label="记录时间" min-width="140">
         <template #default="scope">
           {{ formatDateTime(scope.row.created_at) }}
         </template>
@@ -106,11 +110,67 @@ function convertToCSV(data) {
 <style scoped>
 .data-table-card {
   margin-top: 20px;
+  width: 100%;
 }
 
 .table-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+/* 表格样式优化 */
+.el-table {
+  width: 100%;
+  font-size: 14px;
+}
+
+/* 表格列样式 */
+.el-table__cell {
+  padding: 8px 0;
+}
+
+/* 表头样式 */
+.el-table__header th {
+  background-color: #f5f7fa;
+  color: #606266;
+  font-weight: 500;
+}
+
+/* KD值样式 */
+.kd-value {
+  font-weight: 500;
+}
+
+.kd-high {
+  color: #67C23A;
+}
+
+.kd-low {
+  color: #F56C6C;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .data-table-card {
+    margin-top: 15px;
+  }
+  
+  .el-table {
+    font-size: 13px;
+  }
+  
+  .el-table__cell {
+    padding: 6px 0;
+  }
+  
+  .el-table__header th {
+    font-size: 12px;
+  }
+  
+  /* 在小屏幕上隐藏部分列以节省空间 */
+  :deep(.el-table__body-wrapper) {
+    overflow-x: auto;
+  }
 }
 </style>
